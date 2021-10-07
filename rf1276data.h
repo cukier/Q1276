@@ -43,6 +43,7 @@ public:
 
     int parse(QByteArray &);
     QString toString(void) const;
+    void clear();
 
     static const int RF1276_DATA_SIZE = 12;
 

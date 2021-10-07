@@ -10,7 +10,8 @@ int main(int argc, char *argv[])
         QCoreApplication a(argc, argv);
         RF1276 rf(&a, QString::fromStdString(argv[1]));
 
-        rf.readRadio();
+//        rf.readRadio();
+        rf.setBaud(RF1276Data::B19200BPS);
 
         //    quin
 
