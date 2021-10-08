@@ -123,25 +123,34 @@ void RF1276::onRequest(QByteArray &request)
             QCoreApplication::exit(0);
         } else if (ex == WriteBaud) {
             radio.baudrate = radio_data.baudrate;
+            port->write(makeWriteCommand(radio));
         } else if (ex == WriteParity) {
             radio.parity = radio_data.parity;
+            port->write(makeWriteCommand(radio));
         } else if (ex == WriteFreq) {
             radio.frequency = radio_data.frequency;
+            port->write(makeWriteCommand(radio));
         } else if (ex == WriteRfFactor) {
             radio.rf_factor = radio_data.rf_factor;
+            port->write(makeWriteCommand(radio));
         } else if (ex == WriteRadioMode) {
             radio.mode = radio_data.mode;
+            port->write(makeWriteCommand(radio));
         } else if (ex == WriteRfBW) {
             radio.rf_bw = radio_data.rf_bw;
+            port->write(makeWriteCommand(radio));
         } else if (ex == WriteID) {
             radio.id = radio_data.id;
+            port->write(makeWriteCommand(radio));
         } else if (ex == WriteNetID) {
             radio.net_id = radio_data.net_id;
+            port->write(makeWriteCommand(radio));
         } else if (ex == WritePower) {
             radio.rf_power = radio_data.rf_power;
+            port->write(makeWriteCommand(radio));
         }
 
-        port->write(makeWriteCommand(radio));
+        //        port->write(makeWriteCommand(radio));
     } else {
         qDebug() << "Sem resposta do radio ou erro de comunicacao";
         QCoreApplication::exit(0);
