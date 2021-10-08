@@ -5,13 +5,15 @@
 
 #define serialTimeOut         100
 
-SerialPort::SerialPort(QObject *parent, QString portname) :
+SerialPort::SerialPort(QObject *parent,
+                       QString portname,
+                       QSerialPort::BaudRate baud) :
     QObject(parent),
     m_serialPort(new QSerialPort(this)),
     m_portname(portname)
 {
     m_serialPort->setPortName(m_portname);
-    m_serialPort->setBaudRate(QSerialPort::Baud19200);
+    m_serialPort->setBaudRate(baud);
     m_serialPort->setDataBits(QSerialPort::Data8);
     m_serialPort->setParity(QSerialPort::NoParity);
     m_serialPort->setStopBits(QSerialPort::OneStop);
@@ -44,8 +46,8 @@ void SerialPort::write(const QByteArray &writeData)
     } else if (bytesWritten != writeData.size()) {
         qDebug() << tr("Failed to write all the data to port %1, error: %2")
                     .arg(m_serialPort->portName(), m_serialPort->errorString());
-//    } else if (bytesWritten == writeData.size()) {
-//        qDebug() << "write ok";
+        //    } else if (bytesWritten == writeData.size()) {
+        //        qDebug() << "write ok";
     }
 
     m_timer.start(serialTimeOut);

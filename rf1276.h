@@ -2,6 +2,7 @@
 #define RF1276_H
 
 #include <QObject>
+#include <QSerialPort>
 
 #include "rf1276data.h"
 
@@ -21,7 +22,9 @@ public:
         CMD_XX_RESPONSE = 0x00, CMD_XX_SENDING = 0x80
     } command_xx_t;
 
-    explicit RF1276(QObject *parent = nullptr, QString portName = 0);
+    explicit RF1276(QObject *parent = nullptr,
+                    QString portName = 0,
+                    QSerialPort::BaudRate baud = QSerialPort::Baud1200);
     void readRadio();
     void setBaud(const RF1276Data::baud_rate_t&);
     void setParity(const RF1276Data::parity_t&);

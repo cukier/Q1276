@@ -9,7 +9,9 @@ class SerialPort : public QObject
 {
     Q_OBJECT
 public:
-    explicit SerialPort(QObject *parent = nullptr, QString portname = 0);
+    explicit SerialPort(QObject *parent = nullptr,
+                        QString portname = 0,
+                        QSerialPort::BaudRate baud = QSerialPort::Baud115200);
     ~SerialPort();
 
     void write(const QByteArray &writeData);

@@ -4,9 +4,9 @@
 #include <QDebug>
 #include <QCoreApplication>
 
-RF1276::RF1276(QObject *parent, QString portName) :
+RF1276::RF1276(QObject *parent, QString portName, QSerialPort::BaudRate baud) :
     QObject(parent),
-    port(new SerialPort(this, portName)),
+    port(new SerialPort(this, portName, baud)),
     ex(NoExec)
 {
     connect(port, &SerialPort::newResponse, this, &RF1276::onRequest);
@@ -143,6 +143,7 @@ void RF1276::onRequest(QByteArray &request)
 
         port->write(makeWriteCommand(radio));
     } else {
+        qDebug() << "Sem resposta do radio ou erro de comunicacao";
         QCoreApplication::exit(0);
     }
 
