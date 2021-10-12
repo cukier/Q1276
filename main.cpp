@@ -27,18 +27,13 @@ int main(int argc, char *argv[])
 
             if (!str.compare(PORT_ARG)) {
                 indexPorta = i + 1;
-            }
-
-            if (!str.compare(BAUD_ARG)) {
+            } else if (!str.compare(BAUD_ARG)) {
                 indexBaud = i + 1;
-            }
-
-            if (!str.compare(READ_CMD))
+            } else if (!str.compare(READ_CMD)) {
                 indexComando = i;
-            else if (!str.compare(WRITE_CMD))
+            } else if (!str.compare(WRITE_CMD)) {
                 indexComando = i + 1;
-
-            if (!str.compare(SET_BAUD_CMD)) {
+            } else if (!str.compare(SET_BAUD_CMD)) {
                 indexBaudValue = i + 1;
             }
         }
@@ -76,14 +71,37 @@ int main(int argc, char *argv[])
             return -1;
         }
 
-        std::string str(argv[indexComando]);
+        std::string strCmd(argv[indexComando]);
 
-        if (!str.compare(READ_CMD)) {
+        if (!strCmd.compare(READ_CMD)) {
             a = new QCoreApplication(argc, argv);
             rf = new RF1276(a, argv[indexPorta], baud);
             rf->readRadio();
-        } else if (!str.compare(WRITE_CMD)) {
+        } else if (!strCmd.compare(WRITE_CMD)) {
+            RF1276Data::baud_rate_t newBaud = RF1276Data::BINVPS;
 
+            if (indexBaudValue != -1) {
+                try {
+                    int newBaudCmd = std::stoi(argv[indexBaud]);
+
+                    if ((newBaudCmd != 9600) && (newBaudCmd != 19200)) {
+                        std::cout << "Configuracao baud invalido\n";
+                        return -1;
+                    }
+                }  catch (std::invalid_argument const&) {
+                    std::cout << "Configuracao baud invalido\n";
+                    return -1;
+                }
+
+                a = new QCoreApplication(argc, argv);
+                rf = new RF1276(a, argv[indexPorta], baud);
+
+                if (newBaud != RF1276Data::BINVPS) {
+                    rf->setBaud(newBaud);
+                }
+
+                rf->writeRadio();
+            }
         }
 
         //        if (indexBaud != -1) {

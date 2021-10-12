@@ -110,7 +110,7 @@ void RF1276::onRequest(QByteArray &request)
     if (request.length()) {
         QByteArray data;
 
-        for(int i = 0; i < 12; ++i)
+        for(int i = 0; i < RF1276Data::RF1276_DATA_SIZE; ++i)
             data.append(request.at(8 + i));
 
         RF1276Data radio;
@@ -121,36 +121,28 @@ void RF1276::onRequest(QByteArray &request)
             QString radioStr = radio.toString();
             qDebug().noquote() << radioStr.toUtf8();
             QCoreApplication::exit(0);
-        } else if (ex == WriteBaud) {
-            radio.baudrate = radio_data.baudrate;
-            port->write(makeWriteCommand(radio));
-        } else if (ex == WriteParity) {
-            radio.parity = radio_data.parity;
-            port->write(makeWriteCommand(radio));
-        } else if (ex == WriteFreq) {
-            radio.frequency = radio_data.frequency;
-            port->write(makeWriteCommand(radio));
-        } else if (ex == WriteRfFactor) {
-            radio.rf_factor = radio_data.rf_factor;
-            port->write(makeWriteCommand(radio));
-        } else if (ex == WriteRadioMode) {
-            radio.mode = radio_data.mode;
-            port->write(makeWriteCommand(radio));
-        } else if (ex == WriteRfBW) {
-            radio.rf_bw = radio_data.rf_bw;
-            port->write(makeWriteCommand(radio));
-        } else if (ex == WriteID) {
-            radio.id = radio_data.id;
-            port->write(makeWriteCommand(radio));
-        } else if (ex == WriteNetID) {
-            radio.net_id = radio_data.net_id;
-            port->write(makeWriteCommand(radio));
-        } else if (ex == WritePower) {
-            radio.rf_power = radio_data.rf_power;
+        } else if (ex == WriteRadio) {
+            if (radio_data.baudrate != RF1276Data::BINVPS)
+                radio.baudrate = radio_data.baudrate;
+            if (radio_data.parity != RF1276Data::INV_PARITY)
+                radio.parity = radio_data.parity;
+            if (radio_data.frequency != -1.0f)
+                radio.frequency = radio_data.frequency;
+            if (radio_data.rf_factor != RF1276Data::RF_INV)
+                radio.rf_factor = radio_data.rf_factor;
+            if (radio_data.mode != RF1276Data::MODE_INV)
+                radio.mode = radio_data.mode;
+            if (radio_data.rf_bw != RF1276Data::BW_INV)
+                radio.rf_bw = radio_data.rf_bw;
+            if (radio_data.id != 0xFFFF)
+                radio.id = radio_data.id;
+            if (radio_data.net_id != 0xFF)
+                radio.net_id = radio_data.net_id;
+            if (radio_data.rf_power != RF1276Data::P_INV)
+                radio.rf_power = radio_data.rf_power;
+
             port->write(makeWriteCommand(radio));
         }
-
-        //        port->write(makeWriteCommand(radio));
     } else {
         qDebug() << "Sem resposta do radio ou erro de comunicacao";
         QCoreApplication::exit(0);
@@ -170,90 +162,53 @@ void RF1276::readRadio()
 
 void RF1276::setBaud(const RF1276Data::baud_rate_t &baud)
 {
-    QByteArray readRequest = makeReadCommand();
-
-    radio_data.clear();
     radio_data.baudrate = baud;
-    ex = WriteBaud;
-    port->write(readRequest);
 }
 
 void RF1276::setParity(const RF1276Data::parity_t &parity)
 {
-    QByteArray readRequest = makeReadCommand();
-
-    radio_data.clear();
     radio_data.parity = parity;
-    ex = WriteParity;
-    port->write(readRequest);
 }
 
 void RF1276::setFrequencie(const float &frequencie)
 {
-    QByteArray readRequest = makeReadCommand();
-
-    radio_data.clear();
     radio_data.frequency = frequencie;
-    ex = WriteFreq;
-    port->write(readRequest);
 }
 
 void RF1276::setRfFactor(const RF1276Data::rf_factor_t &factor)
 {
-    QByteArray readRequest = makeReadCommand();
-
-    radio_data.clear();
     radio_data.rf_factor = factor;
-    ex = WriteRfFactor;
-    port->write(readRequest);
 }
 
 void RF1276::setMode(const RF1276Data::radio_mode_t &mode)
 {
-    QByteArray readRequest = makeReadCommand();
-
-    radio_data.clear();
     radio_data.mode = mode;
-    ex = WriteRadioMode;
-    port->write(readRequest);
 }
 
 void RF1276::setRfBW(const RF1276Data::rf_bw_t &rf_bw)
 {
-    QByteArray readRequest = makeReadCommand();
-
-    radio_data.clear();
     radio_data.rf_bw = rf_bw;
-    ex = WriteRadioMode;
-    port->write(readRequest);
 }
 
 void RF1276::setId(const quint16 &id)
 {
-    QByteArray readRequest = makeReadCommand();
-
-    radio_data.clear();
     radio_data.id = id;
-    ex = WriteID;
-    port->write(readRequest);
 }
 
 void RF1276::setNetID(const quint8 &net_id)
 {
-    QByteArray readRequest = makeReadCommand();
-
-    radio_data.clear();
     radio_data.net_id = net_id;
-    ex = WriteNetID;
-    port->write(readRequest);
 }
 
 void RF1276::setRfPower(const RF1276Data::rf_power_t &power)
 {
+    radio_data.rf_power = power;
+}
+
+void RF1276::writeRadio()
+{
     QByteArray readRequest = makeReadCommand();
 
-    radio_data.clear();
-    radio_data.rf_power = power;
-    ex = WritePower;
+    ex = WriteRadio;
     port->write(readRequest);
 }

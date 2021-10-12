@@ -118,13 +118,13 @@ QString RF1276Data::toString() const
 
 void RF1276Data::clear()
 {
-    baudrate = B1200BPS;
-    parity = NO_PARITY;
-    frequency = 0.0f;
-    rf_factor = RF_128;
-    mode = MODE_STANDARD;
-    rf_bw = BW_62_5K;
-    id = 0;
-    net_id = 0;
+    baudrate = BINVPS;
+    parity = INV_PARITY;
+    frequency = -1.0f;
+    rf_factor = RF_INV;
+    mode = MODE_INV;
+    rf_bw = BW_INV;
+    id = 0xFFFF;
+    net_id = 0xFF;
     rf_power = P_4DBM;
 }

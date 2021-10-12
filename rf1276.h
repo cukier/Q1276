@@ -35,6 +35,7 @@ public:
     void setId(const quint16&);
     void setNetID(const quint8&);
     void setRfPower(const RF1276Data::rf_power_t&);
+    void writeRadio();
 
 signals:
 
@@ -45,15 +46,7 @@ private:
     typedef enum exec_enum {
         NoExec,
         ReadRadio,
-        WriteBaud,
-        WriteParity,
-        WriteFreq,
-        WriteRfFactor,
-        WriteRadioMode,
-        WriteRfBW,
-        WriteID,
-        WriteNetID,
-        WritePower
+        WriteRadio
     } execute_t;
 
     quint8 crc(const QByteArray &) const;
