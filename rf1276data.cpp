@@ -89,10 +89,10 @@ QString RF1276Data::toString() const
         str.append("62.5K");
     else if (rf_bw == BW_125K)
         str.append("125K");
-    else if (rf_bw == BW_250K)
-        str.append("250K");
-    else if (rf_bw == BW_500K)
-        str.append("500K");
+    else if (rf_bw == BW_256K)
+        str.append("256K");
+    else if (rf_bw == BW_512K)
+        str.append("512K");
 
     str.append(QString("\nID:\t\t%1").arg(id));
     str.append(QString("\nNet ID:\t\t%1").arg(net_id));
