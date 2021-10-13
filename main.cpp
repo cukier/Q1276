@@ -5,11 +5,26 @@
 #include "rf1276.h"
 #include "serialport.h"
 
-#define PORT_ARG        "-p"
-#define BAUD_ARG        "-b"
-#define READ_CMD        "-r"
-#define WRITE_CMD       "-w"
-#define SET_BAUD_CMD    "-sb"
+//porta serial
+#define PORT_ARG            "-p"
+#define BAUD_ARG            "-b"
+//comando
+#define READ_CMD            "-r"
+#define WRITE_CMD           "-w"
+//parametros comando escrita
+#define SET_BAUD_CMD        "-sb"
+#define SET_PARITY_CMD      "-sp"
+#define SET_FREQ_CMD        "-sf"
+#define SET_RF_FA_CMD       "-sfa"
+#define SET_MODE_CMD        "-sm"
+#define SET_RF_BW_CMD       "-sbw"
+#define SET_ID_CMD          "-si"
+#define SET_NET_ID_CMD      "-sn"
+#define SET_RF_PW_CMD       "-spw"
+//parametros paridade
+#define SET_PARITY_NONE     "none"
+#define SET_PARITY_ODD      "odd"
+#define SET_PARITY_EVEN     "even"
 
 int main(int argc, char *argv[])
 {
@@ -17,9 +32,18 @@ int main(int argc, char *argv[])
         QCoreApplication *a = nullptr;
         RF1276 *rf = nullptr;
         int indexPorta = -1;
-        int indexComando = -1;
+        int indexComandoWr = -1;
+        int indexComandoRd = -1;
         int indexBaud = -1;
         int indexBaudValue = -1;
+        int indexParityValue = -1;
+        //        int indexFreqValue = -1;
+        //        int indexFRfFactValue = -1;
+        //        int indexModeValue = -1;
+        //        int indexRfBwValue = -1;
+        //        int indexIdValue = -1;
+        //        int indexNetIdValue = -1;
+        //        int indexRfPowValue = -1;
 
 
         for (int i = 0; i < argc; ++i) {
@@ -30,11 +54,27 @@ int main(int argc, char *argv[])
             } else if (!str.compare(BAUD_ARG)) {
                 indexBaud = i + 1;
             } else if (!str.compare(READ_CMD)) {
-                indexComando = i;
+                indexComandoRd = i;
             } else if (!str.compare(WRITE_CMD)) {
-                indexComando = i + 1;
+                indexComandoWr = i;
             } else if (!str.compare(SET_BAUD_CMD)) {
                 indexBaudValue = i + 1;
+            } else if (!str.compare(SET_PARITY_CMD)) {
+                indexParityValue = i + 1;
+                //            } else if (!str.compare(SET_FREQ_CMD)) {
+                //                indexFreqValue = i + 1;
+                //            } else if (!str.compare(SET_RF_FA_CMD)) {
+                //                indexFRfFactValue = i + 1;
+                //            } else if (!str.compare(SET_MODE_CMD)) {
+                //                indexModeValue = i + 1;
+                //            } else if (!str.compare(SET_RF_BW_CMD)) {
+                //                indexRfBwValue = i + 1;
+                //            } else if (!str.compare(SET_ID_CMD)) {
+                //                indexIdValue = i + 1;
+                //            } else if (!str.compare(SET_NET_ID_CMD)) {
+                //                indexNetIdValue = i + 1;
+                //            } else if (!str.compare(SET_RF_PW_CMD)) {
+                //                indexRfPowValue = i + 1;
             }
         }
 
@@ -48,7 +88,7 @@ int main(int argc, char *argv[])
             return -1;
         }
 
-        if (indexComando == -1) {
+        if ((indexComandoWr == -1) && (indexComandoRd == -1)) {
             std::cout << "Necessario indicar um comando escrita '-w' ou leitura '-r'\n";
             return -1;
         }
@@ -63,103 +103,72 @@ int main(int argc, char *argv[])
             } else if (baudInt == 19200) {
                 baud = QSerialPort::Baud19200;
             } else {
-                std::cout << "Baud invalido\n";
+                std::cout << "Baud invalido usar 9600 ou 19200\n";
                 return -1;
             }
         }  catch (std::invalid_argument const&) {
-            std::cout << "Baud invalido\n";
+            std::cout << "Baud invalido usar 9600 ou 19200\n";
             return -1;
         }
 
-        std::string strCmd(argv[indexComando]);
-
-        if (!strCmd.compare(READ_CMD)) {
+        if (indexComandoRd != -1) {
             a = new QCoreApplication(argc, argv);
             rf = new RF1276(a, argv[indexPorta], baud);
             rf->readRadio();
-        } else if (!strCmd.compare(WRITE_CMD)) {
+        } else if (indexComandoWr != -1) {
             RF1276Data::baud_rate_t newBaud = RF1276Data::BINVPS;
+            RF1276Data::parity_t newParity = RF1276Data::INV_PARITY;
 
             if (indexBaudValue != -1) {
                 try {
-                    int newBaudCmd = std::stoi(argv[indexBaud]);
+                    int newBaudCmd = std::stoi(argv[indexBaudValue]);
 
                     if ((newBaudCmd != 9600) && (newBaudCmd != 19200)) {
-                        std::cout << "Configuracao baud invalido\n";
+                        std::cout << "Baud invalido usar 9600 ou 19200\n";
                         return -1;
+                    } else {
+                        if (newBaudCmd == 19200)
+                            newBaud = RF1276Data::B19200BPS;
+                        else if(newBaudCmd == 9600)
+                            newBaud = RF1276Data::B9600BPS;
                     }
                 }  catch (std::invalid_argument const&) {
-                    std::cout << "Configuracao baud invalido\n";
+                    std::cout << "Baud invalido usar 9600 ou 19200\n";
                     return -1;
                 }
-
-                a = new QCoreApplication(argc, argv);
-                rf = new RF1276(a, argv[indexPorta], baud);
-
-                if (newBaud != RF1276Data::BINVPS) {
-                    rf->setBaud(newBaud);
-                }
-
-                rf->writeRadio();
             }
+
+            if (indexParityValue != -1) {
+                std::string str(argv[indexParityValue]);
+
+                if (!str.compare(SET_PARITY_NONE)) {
+                    newParity = RF1276Data::NO_PARITY;
+                } else if (!str.compare(SET_PARITY_EVEN)) {
+                    newParity = RF1276Data::EVEN_PARITY;
+                } else if (!str.compare(SET_PARITY_ODD)) {
+                    newParity = RF1276Data::ODD_PARITY;
+                } else {
+                    std::cout << "Paridade errada, uar "
+                              << SET_PARITY_NONE
+                              << " ou " << SET_PARITY_EVEN
+                              << " ou " << SET_PARITY_ODD
+                              << std::endl;
+                }
+            }
+
+            a = new QCoreApplication(argc, argv);
+            rf = new RF1276(a, argv[indexPorta], baud);
+
+            if (newBaud != RF1276Data::BINVPS) {
+                rf->setBaud(newBaud);
+            }
+
+            if (newParity != RF1276Data::INV_PARITY) {
+                rf->setParity(newParity);
+            }
+
+            rf->writeRadio();
         }
-
-        //        if (indexBaud != -1) {
-        //            if (indexPorta != -1) {
-        //                if (indexBaud != -1) {
-        //                    std::string strBaud(argv[indexBaud]);
-        //                    int baudInt = std::stoi(strBaud);
-        //                    QSerialPort::BaudRate baud = QSerialPort::UnknownBaud;
-
-        //                    if (baudInt == 9600) {
-        //                        baud = QSerialPort::Baud9600;
-        //                    } else if (baudInt == 19200) {
-        //                        baud = QSerialPort::Baud19200;
-        //                    } else {
-        //                        std::cout << "Baud nao valido" << std::endl;
-        //                        return -1;
-        //                    }
-
-        //                    if (indexComando != -1) {
-        //                        std::string str(argv[indexComando]);
-
-        //                        if (!str.compare(READ_CMD)) {
-        //                            rf = new RF1276(&a, argv[indexPorta], baud);
-        //                            rf->readRadio();
-        //                        }
-        //                    } else {
-        //                        std::cout << "Necessario indicar um comando escrita '-w' ou leitura '-r'" << std::endl;
-        //                        return -1;
-        //                    }
-        //                } else {
-        //                    std::cout << "Necessario indicar baud para porta serial '-b baud'" << std::endl;
-        //                    return -1;
-        //                }
-        //            } else {
-        //                std::cout << "Necessario indicar porta serial '-p porta'" << std::endl;
-        //                return -1;
-        //            }
-        //        RF1276 rf(&a, QString::fromStdString(argv[1]));
-
-        //        rf.readRadio();
-        //        rf.setBaud(RF1276Data::B19200BPS);
-
-        //    quin
-
-        //    SerialPort p(&a, "/dev/ttyUSB1");
-        //    QByteArray request;
-
-        //    request.append(0x01);
-        //    request.append(0x03);
-        //    request.append((quint8) 0x00);
-        //    request.append((quint8) 0x00);
-        //    request.append((quint8) 0x00);
-        //    request.append(0x0a);
-        //    request.append(0xc5);
-        //    request.append(0xcd);
-
-        //    p.write(request);
-        //    p.close();
 
         if (a == nullptr)
             return -1;

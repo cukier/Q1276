@@ -67,6 +67,9 @@ void SerialPort::openPort()
         open = m_serialPort->open(QIODevice::ReadWrite);
 
     qDebug().noquote() << QString("Porta %1@%2 : %3").arg(m_portname).arg(m_serialPort->baudRate()).arg(open);
+
+    if (!open)
+        QCoreApplication::exit(-1);
 }
 
 void SerialPort::handleReadyRead()

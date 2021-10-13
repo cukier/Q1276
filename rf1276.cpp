@@ -9,6 +9,7 @@ RF1276::RF1276(QObject *parent, QString portName, QSerialPort::BaudRate baud) :
     port(new SerialPort(this, portName, baud)),
     ex(NoExec)
 {
+    radio_data.clear();
     connect(port, &SerialPort::newResponse, this, &RF1276::onRequest);
 }
 
@@ -71,6 +72,8 @@ QByteArray RF1276::freqToUchar(const float &freq_hz) const
     QByteArray ret;
 
     quint32 aux = (quint32) (freq_hz / 61.035f);
+    //    float auxdiv = freq_hz / 61.035f;
+    //    quint32 aux2 = (quint32) auxdiv;
 
     ret.append(toUchar(aux, 0));
     ret.append(toUchar(aux, 1));
@@ -145,7 +148,7 @@ void RF1276::onRequest(QByteArray &request)
         }
     } else {
         qDebug() << "Sem resposta do radio ou erro de comunicacao";
-        QCoreApplication::exit(0);
+        QCoreApplication::exit(-1);
     }
 
     ex = NoExec;
